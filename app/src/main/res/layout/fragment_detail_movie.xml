@@ -1,0 +1,99 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    tools:context="com.jogoler.android.tmdb.fragment.DetailMovieFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        tools:context=".DetailMovieActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <ImageView
+                android:id="@+id/poster_movie_image_view"
+                android:layout_width="@dimen/movie_poster_width_for_detail"
+                android:layout_height="@dimen/movie_poster_height_for_detail"
+                android:layout_marginBottom="16dp"
+                android:layout_marginRight="16dp"
+                android:scaleType="fitXY" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                
+                <TextView
+                    android:id="@+id/title_movie_text_view"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="4dp"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"
+                    />
+                
+                <include layout="@layout/rating"/>
+                <include layout="@layout/favorite"/>
+
+                <TextView
+                    android:id="@+id/movie_user_rating_text_view"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textIsSelectable="true"
+                    tools:text="TMDB = 6.8/10"/>
+
+                <TextView
+                    android:id="@+id/movie_release_date_text_view"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:textColor="@android:color/black"
+                    android:textIsSelectable="true"
+                    tools:text="20 August 2017"/>
+                
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_marginTop="8dp"
+            android:id="@+id/movie_overview_text_view"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list_trailer_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/trailer_vertical_margin"
+            tools:listitem="@layout/trailer_list_content" >
+
+        </android.support.v7.widget.RecyclerView>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list_review_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/review_vertical_margin"
+            app:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/review_list_content" />
+    </LinearLayout>
+
+</ScrollView>

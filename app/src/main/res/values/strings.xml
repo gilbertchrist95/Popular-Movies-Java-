@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">TMDb</string>
+    <string name="no_movies">No Movies</string>
+    <string name="no_connection">No Internet Connection</string>
+    <string name="url_for_downloading_poster">http://image.tmdb.org/t/p/w342</string>
+    <string name="url_for_downloading_backdrop">http://image.tmdb.org/t/p/original</string>
+    <string name="url_for_youtube_trailer">http://www.youtube.com/watch?v=</string>
+    <string name="sort_by">Sort By</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="favorites">Favorites</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_favorites">Mark as favorite</string>
+    <string name="remove_favorites">Remove from favorites</string>
+</resources>

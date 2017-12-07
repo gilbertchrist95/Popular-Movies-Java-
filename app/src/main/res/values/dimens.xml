@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_for_grid">16dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="app_bar_height">200dp</dimen>
+    <dimen name="movie_overview_padding_top">16dp</dimen>
+    <dimen name="button_vertical_padding">16dp</dimen>
+    <dimen name="button_horizontal_padding">16dp</dimen>
+
+
+    <dimen name="movie_poster_width_for_detail">140dp</dimen>
+    <dimen name="movie_poster_height_for_detail">210dp</dimen>
+    <dimen name="movie_title_padding_for_grid">16dp</dimen>
+    <dimen name="trailer_width_for_detail">150dp</dimen>
+    <dimen name="trailer_height_for_detail">100dp</dimen>
+    <integer name="grid_number_cols">2</integer>
+
+    <dimen name="button_height">36dp</dimen>
+    <dimen name="trailer_vertical_margin">16dp</dimen>
+    <dimen name="review_vertical_margin">16dp</dimen>
+
+
+</resources>
