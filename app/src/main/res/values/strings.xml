@@ -14,4 +14,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_favorites">Mark as favorite</string>
     <string name="remove_favorites">Remove from favorites</string>
+    <string name="videos">Videos</string>
+    <string name="reviews">Reviews</string>
 </resources>

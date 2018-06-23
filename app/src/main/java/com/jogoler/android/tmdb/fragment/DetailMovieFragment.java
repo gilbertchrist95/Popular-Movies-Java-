@@ -1,6 +1,5 @@
 package com.jogoler.android.tmdb.fragment;
 
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -20,19 +19,19 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jogoler.android.tmdb.ApiUtils;
+import com.jogoler.android.tmdb.BuildConfig;
 import com.jogoler.android.tmdb.DetailMovieActivity;
+import com.jogoler.android.tmdb.DetailMovieContract;
 import com.jogoler.android.tmdb.R;
-import com.jogoler.android.tmdb.adapter.ReviewListAdapter;
-import com.jogoler.android.tmdb.adapter.TrailerListAdapter;
+import com.jogoler.android.tmdb.adapter.DetailMovieAdapter;
 import com.jogoler.android.tmdb.data.MovieContract;
 import com.jogoler.android.tmdb.pojo.Movie;
 import com.jogoler.android.tmdb.pojo.Review;
+import com.jogoler.android.tmdb.pojo.Reviews;
 import com.jogoler.android.tmdb.pojo.Trailer;
-import com.jogoler.android.tmdb.task.FetchReviewTask;
-import com.jogoler.android.tmdb.task.FetchTrailerTask;
+import com.jogoler.android.tmdb.pojo.Trailers;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +39,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Response;
 
 import static android.view.View.GONE;
 import static com.jogoler.android.tmdb.data.MovieContract.MovieListEntry.CONTENT_URI;
@@ -47,21 +53,16 @@ import static com.jogoler.android.tmdb.data.MovieContract.MovieListEntry.CONTENT
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DetailMovieFragment extends Fragment implements TrailerListAdapter.Callbacks, ReviewListAdapter.Callbacks, FetchTrailerTask.Listener, FetchReviewTask.Listener {
+public class DetailMovieFragment extends Fragment implements DetailMovieContract.Adapter {
 
 
     public static final String STATE_MOVIE = "STATE_MOVIE";
-    public static final String EXTRA_TRAILERS = "EXTRA_TRAILERS";
-    public static final String EXTRA_REVIEWS = "EXTRA_REVIEWS";
 
     private Movie movie;
-    private ReviewListAdapter mReviewListAdapter;
-    private TrailerListAdapter mTrailerListAdapter;
+    private DetailMovieAdapter detailMovieAdapter;
 
-    @BindView(R.id.list_trailer_recycler_view)
-    RecyclerView trailerListRecyclerView;
-    @BindView(R.id.list_review_recycler_view)
-    RecyclerView reviewListRecyclerView;
+    @BindView(R.id.list_item_recycler_view)
+    RecyclerView listItemRecyclerView;
 
     @BindView(R.id.title_movie_text_view)
     TextView titleMovieTextView;
@@ -129,72 +130,33 @@ public class DetailMovieFragment extends Fragment implements TrailerListAdapter.
         upadateRatingBar();
         updateFavoriteButton();
 
-        //trailer
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        trailerListRecyclerView.setLayoutManager(layoutManager);
-        mTrailerListAdapter = new TrailerListAdapter(new ArrayList<Trailer>(), this);
-        trailerListRecyclerView.setAdapter(mTrailerListAdapter);
-        trailerListRecyclerView.setNestedScrollingEnabled(false);
-
-        //reviews
-        mReviewListAdapter = new ReviewListAdapter(new ArrayList<Review>(), this);
-        reviewListRecyclerView.setAdapter(mReviewListAdapter);
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_TRAILERS)) {
-            List<Trailer> trailers = savedInstanceState.getParcelableArrayList(EXTRA_TRAILERS);
-            mTrailerListAdapter.add(trailers);
-        } else {
-            fetchTrailers();
-        }
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_REVIEWS)) {
-            List<Review> reviews = savedInstanceState.getParcelableArrayList(EXTRA_REVIEWS);
-            mReviewListAdapter.add(reviews);
-        } else {
-            fetchReviews();
-        }
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        detailMovieAdapter = new DetailMovieAdapter(getContext(), this);
+        listItemRecyclerView.setLayoutManager(layoutManager);
+        listItemRecyclerView.setAdapter(detailMovieAdapter);
+        fetchTrailersAndReviewsMovies();
         return rootView;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        ArrayList<Trailer> trailers = mTrailerListAdapter.getTrailers();
-        if(trailers!=null && !trailers.isEmpty()){
-            outState.putParcelableArrayList(EXTRA_TRAILERS,trailers);
-        }
-
-        ArrayList<Review>reviews = mReviewListAdapter.getReviews();
-        if(reviews!=null && !reviews.isEmpty()){
-            outState.putParcelableArrayList(EXTRA_REVIEWS,reviews);
-        }
-    }
-
-    private void fetchReviews() {
-        FetchReviewTask fetchReviewTask = new FetchReviewTask(this);
-        fetchReviewTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movie.getId());
-    }
-
-    private void fetchTrailers() {
-        FetchTrailerTask fetchTrailerTask = new FetchTrailerTask(this);
-        fetchTrailerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movie.getId());
-    }
 
     private void upadateRatingBar() {
         if (movie.getVote_average() != null && !movie.getVote_average().isEmpty()) {
             String rating = "TMDb: " + movie.getVote_average() + "/10";
             userRatingTextView.setText(rating);
 
-            float userRating = Float.valueOf(movie.getVote_average()) / 2;
+            float userRating = Float.valueOf(movie.getVote_average());
             int partRating = (int) userRating / 2;
 
             for (int i = 0; i < partRating; i++) {
                 ratingStarView.get(i).setImageResource(R.mipmap.ic_star_full);
+                ratingStarView.get(i).getLayoutParams().width = 90;
+                ratingStarView.get(i).requestLayout();
             }
 
             if (Math.round(userRating) > partRating) {
                 ratingStarView.get(partRating).setImageResource(R.mipmap.ic_star_half);
+                ratingStarView.get(partRating).getLayoutParams().width = 90;
+                ratingStarView.get(partRating).requestLayout();
             }
             userRatingTextView.setVisibility(GONE);
         } else {
@@ -301,23 +263,61 @@ public class DetailMovieFragment extends Fragment implements TrailerListAdapter.
         }
     }
 
+    private void fetchTrailersAndReviewsMovies(){
+        Observable.zip(getTrailersMovie(), getReviewsMovie(), new BiFunction<Response<Trailers>, Response<Reviews>, List>() {
+            @Override
+            public List apply(Response<Trailers> trailersResponse, Response<Reviews> reviewsResponse) throws Exception {
+                List combineList = new ArrayList();
+                List<Trailer> trailerList= trailersResponse.body().getTrailers();
+                List<Review> reviewList = reviewsResponse.body().getReviews();
+                combineList.add("Videos");
+                combineList.addAll(trailerList);
+                combineList.add("Reviews");
+                combineList.addAll(reviewList);
+                return combineList;
+            }
+        }).subscribe(new Observer<List>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(List list) {
+                detailMovieAdapter.add(list);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private Observable<Response<Reviews>> getReviewsMovie(){
+        return ApiUtils.getMovieService().getReviewsMovie(movie.getId(), BuildConfig.THE_MOVIE_DATABASE_API_KEY)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private Observable<Response<Trailers>> getTrailersMovie(){
+        return ApiUtils.getMovieService().getTrailersMovie(movie.getId(), BuildConfig.THE_MOVIE_DATABASE_API_KEY)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
     @Override
     public void watch(Trailer trailer, int position) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(trailer.getKey())));
     }
 
     @Override
-    public void read(Review review, int position) {
+    public void read(Review review, int positio) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(review.getUrl())));
-    }
-
-    @Override
-    public void onTrailerFetchFinished(List<Trailer> trailers) {
-        mTrailerListAdapter.add(trailers);
-    }
-
-    @Override
-    public void onReviewFetchFinished(List<Review> reviews) {
-        mReviewListAdapter.add(reviews);
     }
 }

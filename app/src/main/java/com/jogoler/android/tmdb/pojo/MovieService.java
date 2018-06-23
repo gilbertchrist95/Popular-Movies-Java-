@@ -1,6 +1,8 @@
 package com.jogoler.android.tmdb.pojo;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -15,10 +17,9 @@ public interface MovieService {
     Call<Movies> getMovie(@Path("sort_by") String sortBy, @Query("api_key") String apiKey);
 
     @GET("/3/movie/{id}/reviews")
-    Call<Reviews> getReviewsMovie(@Path("id") long id, @Query("api_key") String apiKey);
-
+    Observable<Response<Reviews>> getReviewsMovie(@Path("id") long id, @Query("api_key") String apiKey);
 
     @GET("/3/movie/{id}/videos")
-    Call<Trailers> getTrailersMovie(@Path("id") long id, @Query("api_key") String apiKey);
+    Observable<Response<Trailers>> getTrailersMovie(@Path("id") long id, @Query("api_key") String apiKey);
 
 }
