@@ -2,12 +2,13 @@ package com.jogoler.android.tmdb.pojo;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Created by Gilbert on 8/20/2017.
  */
 
-public class Review implements Parcelable{
+public class Review implements Parcelable, Comparable<Review>{
 
     /**
      * id : 55a58e46c3a3682bb2000065
@@ -85,5 +86,10 @@ public class Review implements Parcelable{
         parcel.writeString(author);
         parcel.writeString(content);
         parcel.writeString(url);
+    }
+
+    @Override
+    public int compareTo(@NonNull Review review) {
+        return 0;
     }
 }

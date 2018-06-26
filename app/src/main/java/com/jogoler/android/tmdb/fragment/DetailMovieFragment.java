@@ -53,7 +53,7 @@ import static com.jogoler.android.tmdb.data.MovieContract.MovieListEntry.CONTENT
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DetailMovieFragment extends Fragment implements DetailMovieContract.Adapter {
+public class DetailMovieFragment extends Fragment implements DetailMovieContract.MovieListener {
 
 
     public static final String STATE_MOVIE = "STATE_MOVIE";
@@ -131,7 +131,7 @@ public class DetailMovieFragment extends Fragment implements DetailMovieContract
         updateFavoriteButton();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        detailMovieAdapter = new DetailMovieAdapter(getContext(), this);
+        detailMovieAdapter = new DetailMovieAdapter(this);
         listItemRecyclerView.setLayoutManager(layoutManager);
         listItemRecyclerView.setAdapter(detailMovieAdapter);
         fetchTrailersAndReviewsMovies();
@@ -264,19 +264,19 @@ public class DetailMovieFragment extends Fragment implements DetailMovieContract
     }
 
     private void fetchTrailersAndReviewsMovies(){
-        Observable.zip(getTrailersMovie(), getReviewsMovie(), new BiFunction<Response<Trailers>, Response<Reviews>, List>() {
+        Observable.zip(getTrailersMovie(), getReviewsMovie(), new BiFunction<Response<Trailers>, Response<Reviews>, List<Comparable>>() {
             @Override
             public List apply(Response<Trailers> trailersResponse, Response<Reviews> reviewsResponse) throws Exception {
-                List combineList = new ArrayList();
+                List<Comparable> combineList = new ArrayList();
                 List<Trailer> trailerList= trailersResponse.body().getTrailers();
                 List<Review> reviewList = reviewsResponse.body().getReviews();
-                combineList.add("Videos");
+                combineList.add(getString(R.string.videos)); // magic string
                 combineList.addAll(trailerList);
-                combineList.add("Reviews");
+                combineList.add(getString(R.string.reviews)); // magic string
                 combineList.addAll(reviewList);
                 return combineList;
             }
-        }).subscribe(new Observer<List>() {
+        }).subscribe(new Observer<List<Comparable>>() {
             @Override
             public void onSubscribe(Disposable d) {
 
@@ -284,7 +284,7 @@ public class DetailMovieFragment extends Fragment implements DetailMovieContract
 
             @Override
             public void onNext(List list) {
-                detailMovieAdapter.add(list);
+                detailMovieAdapter.swapData(list);
             }
 
             @Override
@@ -312,12 +312,12 @@ public class DetailMovieFragment extends Fragment implements DetailMovieContract
     }
 
     @Override
-    public void watch(Trailer trailer, int position) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(trailer.getKey())));
+    public void onWatch(Trailer trailer, int position) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(trailer.getKeyyy())));
     }
 
     @Override
-    public void read(Review review, int positio) {
+    public void onRead(Review review, int positio) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(review.getUrl())));
     }
 }

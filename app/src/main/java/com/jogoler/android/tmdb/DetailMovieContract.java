@@ -9,9 +9,9 @@ import com.jogoler.android.tmdb.pojo.Trailer;
 
 public class DetailMovieContract {
 
-    public interface Adapter {
-        void watch(Trailer trailer, int position);
+    public interface MovieListener {
+        void onWatch(Trailer trailer, int position);
 
-        void read(Review review, int positio);
+        void onRead(Review review, int positio);
     }
 }

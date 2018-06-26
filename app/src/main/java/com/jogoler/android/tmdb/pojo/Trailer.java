@@ -2,6 +2,7 @@ package com.jogoler.android.tmdb.pojo;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.jogoler.android.tmdb.R;
 
@@ -9,7 +10,7 @@ import com.jogoler.android.tmdb.R;
  * Created by Gilbert on 8/20/2017.
  */
 
-public class Trailer implements Parcelable {
+public class Trailer implements Parcelable, Comparable<Trailer> {
 
     private String id;
     private String key;
@@ -47,14 +48,14 @@ public class Trailer implements Parcelable {
         this.id = id;
     }
 
-    public String getKey() {
+    public String getKeyyy() {
         if (key != null && !key.isEmpty()) {
-            return "http://www.youtube.com/watch?v=" + key;
+            return "http://www.youtube.com/onWatch?v=" + key;
         }
         return null;
     }
 
-    public String getKeyy() {
+    public String getKey() {
 
         return key;
 
@@ -109,5 +110,10 @@ public class Trailer implements Parcelable {
         parcel.writeString(site);
         parcel.writeInt(size);
         parcel.writeString(type);
+    }
+
+    @Override
+    public int compareTo(@NonNull Trailer trailer) {
+        return 0;
     }
 }
